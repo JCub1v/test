@@ -1,0 +1,263 @@
+<?php 
+//start session
+if (!session_id()){
+    session_start();
+}
+
+//Retrieve session data
+$sessData = !empty($_SESSION['sessData']) ? $_SESSION['sessData'] :'';
+
+//Get status msg from session
+if(!empty($sessData['status']['msg'])){
+    $statusMsg = $sessData['status']['msg'];
+    $statusMsgType = $sessData['status']['type'];
+
+    unset($_SESSION['sessData']['status']);
+}
+    require 'connection.php';
+
+    $sql= "SELECT * FROM devices ORDER BY MemberID DESC";
+    $query= $conn ->prepare($sql);
+    $query -> execute();
+    $devices = $query -> fetchAll(PDO::FETCH_ASSOC);
+//Search bar
+
+?>
+<!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Devices Management</title>
+        <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        #searchInput {
+            width: 100%;
+            padding: 12px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination a {
+            margin: 0 5px;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: #007BFF;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .pagination a.active {
+            background-color: #007BFF;
+            color: white;
+            border: 1px solid #007BFF;
+        }
+        .pagination a.disabled {
+            pointer-events: none;
+            color: #ccc;
+            border: 1px solid #ddd;
+        }
+        .cd-table-container{
+    background: #fff;
+    box-shadow: 1px 2px 26px rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    max-width: 720px;
+  }
+  /* Table Design */
+  .cd-table{
+    width: 100%;
+    color: #666;
+    margin: 10px auto;
+    border-collapse: collapse;
+  }
+  
+  .cd-table tr,
+  .cd-table td{
+    border: 1px solid #ccc;
+    padding: 10px;
+  }
+  .cd-table th{
+    background: #017721;
+    color: #fff;
+    padding: 10px;
+  }
+  
+  /* Search Box */
+  .cd-search{
+    padding: 10px;
+    border: 1px solid #ccc;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Search Title */
+  .cd-title{
+    color: #666;
+    margin: 15px 0;
+  }
+
+    </style>
+        <link rel="stylesheet" href="boostrap.min.css"></head>
+      <body>
+        <div class="container">
+        <h1>Quản Lý Thiết Bị WEB DEMO</h1>
+        <?php if(!empty($statusMsg)&&($statusMsgType == 'success')){?>
+            <div class="col-xs-12">
+                <div class="alert alert-success"><?php echo $statusMsg; ?></div>
+            </div>
+            <?php }elseif(!empty($statusMsg)&&($statusMsgType == 'error')){ ?>
+                <div class="col-xs-12">
+                <div class="alert alert-danger"><?php echo $statusMsg; ?></div>
+                </div>
+                <?php } ?>
+        <div class="row">
+            <div class="col-md-12 head">
+                <!-- Add link -->
+                <div class="float-right">
+                    <a href="addEdit.html" class="btn btn-success"><i class="plus"></i>Thêm Thiết Bị</a> 
+                </div>
+            </div>
+            <!-- List the Devices -->
+            <h4 class="sb">Tìm Kiếm:</h4>
+            <input type="text" class="cd-search table-filter" data-table="your-table" id="searchInput" onkeyup="searchTable()" placeholder="Nhập Nội Dung Cần Tìm..." />
+             <table id="myTable" class="table table-striped table-bordered">
+                <thead class="thead-dark">
+                   <tr>
+                        <th>#</th>
+                        <th>Mã Nhân Viên</th>
+                        <th>Tên Nhân Viên</th>
+                        <th>Bộ Phận</th>
+                        <th>Nhà Máy</th>
+                        <th>Loại Nhân Viên</th>
+                        <th>Loại Thiết Bị</th>
+                        <th>Model</th>
+                        <th>Cấu Hình</th>
+                        <th>Model Màn Hình</th>
+                        <th>Kích Thước Màn Hình</th>
+                        <th>Ngày Cấp</th>
+                        <th>Ngày Bảo Trì</th>
+                        <th>Ghi Chú</th>
+                        <th>Action</th>
+                   </tr>   
+                </thead>
+                <tbody id="tableBody">
+
+
+                    <?php if(!empty($devices)){ $count = 0; foreach($devices as $row){ $count++; ?>
+                    <tr>
+                        <td><?php echo $count;?></td>
+                        <td><?php echo $row['maNV'];?></td>
+                        <td><?php echo $row['tenNV'];?></td>
+                        <td><?php echo $row['bophan'];?></td>
+                        <td><?php echo $row['nhamay'];?></td>
+                        <td><?php echo $row['loaiNV'];?></td>
+                        <td><?php echo $row['loaiTB'];?></td>
+                        <td><?php echo $row['model'];?></td>
+                        <td><?php echo $row['cauhinh'];?></td>
+                        <td><?php echo $row['modelmh'];?></td>
+                        <td><?php echo $row['kichthuoc'];?></td>
+                        <td><?php echo  $row['ngaycap'];?></td>
+                        <td><?php echo  $row['ngaybaotri'];?></td>
+                        <td><?php echo $row['note'];?></td>
+                        <td>
+                            <a href="addEdit.php?id=<?php echo $row['MemberID']; ?>" class="btn btn-warning">Sửa</a>
+                            <a href="useraction.php?action_type=delete&id=<?php echo $row['MemberID']; ?>" class="btn btn-danger" onclick="return confirm('Bạn có muốn xoá không?');">Xoá</a>
+                        </td>
+                    </tr> 
+                    <?php } }else{ ?>
+                        <tr><td colspan="7">Không có thiết bị nào...</td></tr>
+                    <?php } ?>
+                </tbody>
+             </table>
+             <div class="pagination" id="pagination"></div>
+             <script>
+                const rowsPerPage = 10; // Change this number to adjust the number of rows per page
+                let currentPage = 1;
+                let filteredRows = [];
+                const table = document.getElementById('myTable');
+                const tableBody = table.getElementsByTagName('tbody')[0];
+                const pagination = document.getElementById('pagination');
+
+                function renderTable(page) {
+                    const rows = filteredRows.length > 0 ? filteredRows : tableBody.getElementsByTagName('tr');
+                    const totalRows = rows.length;
+                    const start = (page - 1) * rowsPerPage;
+                    const end = Math.min(start + rowsPerPage, totalRows);
+
+                    for (let i = 0; i < tableBody.getElementsByTagName('tr').length; i++) {
+                        tableBody.getElementsByTagName('tr')[i].style.display = 'none';
+                    }
+
+                    for (let i = start; i < end; i++) {
+                        rows[i].style.display = '';
+                    }
+                }
+
+                function renderPagination() {
+                    const rows = filteredRows.length > 0 ? filteredRows : tableBody.getElementsByTagName('tr');
+                    const totalRows = rows.length;
+                    const totalPages = Math.ceil(totalRows / rowsPerPage);
+                    pagination.innerHTML = '';
+
+                    for (let i = 1; i <= totalPages; i++) {
+                        const a = document.createElement('a');
+                        a.href = '#';
+                        a.textContent = i;
+                        a.className = (i === currentPage) ? 'active' : '';
+                        a.onclick = (function (page) {
+                            return function () {
+                                currentPage = page;
+                                renderTable(currentPage);
+                                renderPagination();
+                            };
+                        })(i);
+                        pagination.appendChild(a);
+                    }
+                }
+
+                function searchTable() {
+                    let input = document.getElementById('searchInput');
+                    let filter = input.value.toUpperCase();
+                    let tr = tableBody.getElementsByTagName('tr');
+                    filteredRows = [];
+
+                    for (let i = 0; i < tr.length; i++) {
+                        let tds = tr[i].getElementsByTagName('td');
+                        let display = false;
+                        for (let j = 0; j < tds.length; j++) {
+                            if (tds[j] && tds[j].innerText.toUpperCase().indexOf(filter) > -1) {
+                                display = true;
+                                break;
+                            }
+                        }
+                        if (display) {
+                            filteredRows.push(tr[i]);
+                        }
+                    }
+
+                    currentPage = 1; // Reset to first page after search
+                    renderTable(currentPage);
+                    renderPagination();
+                }
+
+                // Initial render
+                renderTable(currentPage);
+                renderPagination
+</script>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        </div>
+      </body>
+    </html>

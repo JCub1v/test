@@ -103,7 +103,7 @@
             $sessData['status']['msg'] = 'Some problem occured, please try again.';
 
             //Set redirect url
-            $redirectURL = 'addEdit.php'.$id_str;
+            $redirectURL = 'addEdit.html'.$id_str;
          }
          }else{
             //Insert data in SQL server
